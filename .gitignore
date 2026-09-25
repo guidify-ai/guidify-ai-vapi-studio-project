@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+logs/
+.DS_Store
+.cache/
+
+# Local compose (promoted from docker-compose.stub.yaml on first yarn start)
+docker-compose.yaml
+docker-compose.yml
+!docker-compose.stub.yaml
+!docker-compose.stub.yml

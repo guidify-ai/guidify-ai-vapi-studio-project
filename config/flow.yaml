@@ -1,0 +1,16 @@
+version: 1
+flow:
+  id: guidify-ai-vapi-studio-project
+  start: greet
+nodes:
+  greet:
+    class: GreetNode
+    intentions:
+      - studio.isPositive
+      - studio.isGoodbye
+  goodbye:
+    class: GoodbyeNode
+    portal: true
+    priority: 100
+    intentions:
+      - studio.isGoodbye

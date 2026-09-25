@@ -1,0 +1,40 @@
+---
+description: How to grow this Vapi Studio starter app (Laravel-style skeleton)
+alwaysApply: true
+---
+
+# Vapi Studio project starter
+
+This repo is a **consumer NestJS app** for `@guidify-ai/vapi-studio` — not the framework.
+
+## Before changing conversation code
+
+1. Read `node_modules/@guidify-ai/vapi-studio/docs/best-practices/README.md`
+2. Read `node_modules/@guidify-ai/vapi-studio/agent/AGENTS.md`
+3. Follow `.cursor/rules/vapi-studio-best-practices.mdc` and `ui-and-api-identity.mdc`
+
+## Where to put work
+
+| Change | Location |
+| --- | --- |
+| New agent step | `src/conversation/nodes/*.node.ts` + register in `app.module.ts` + `config/flow.yaml` |
+| Routing / intentions | `config/flow.yaml` (+ optional intention helpers under `src/conversation/`) |
+| Vapi webhook / Custom LLM | `src/vapi/` |
+| Brain adapter | `src/brain/brain.config.ts` |
+| Secrets | `.env` only (never commit) |
+| Private overlays | `src/shadows/` (see README there) |
+
+## Hard product rules (summary)
+
+- One CTA per turn; conversations must end (`limits` always on)
+- Fail-closed constrained extracts; short digit listen timeouts
+- Soft affirmatives on multi-choice → local re-ask (not Brain/unknown)
+- Silent handoffs; mad: one re-engage then transfer
+- Async prep/teardown in `before()` / `after()` — do not overload `run()`
+- External APIs: **uuid** only; DTOs include human **label**
+
+## Do not
+
+- Put application bots inside the `vapi-studio` framework package
+- Speak raw `userText` / off-topic LLM output / node or graph names
+- Rotate `config/project.identity.json` `id` after Vapi is wired
