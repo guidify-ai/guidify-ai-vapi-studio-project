@@ -5,5 +5,5 @@ logs/
 .DS_Store
 .cache/
 
-# Local project identity (minted by postinstall / ensure-project-uuid)
+# Local project identity (synced from PROJECT_NAME / PROJECT_SLUG in .env)
 config/project.identity.json

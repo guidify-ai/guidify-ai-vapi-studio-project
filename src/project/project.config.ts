@@ -1,53 +1,54 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
+/** Local human identity — one app deploy = one project (name + slug). */
 export interface ProjectIdentity {
-  id: string;
   slug: string;
   name: string;
 }
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+/**
+ * Stable internal DB key for the single local project row.
+ * Not used in public URLs — each fork has its own host/port.
+ */
+export const LOCAL_PROJECT_ID = '00000000-0000-4000-8000-000000000001';
 
 let cached: ProjectIdentity | null = null;
 
-/** Canonical identity from config/project.identity.json — never generate at runtime. */
+/**
+ * Canonical name/slug from config/project.identity.json.
+ * Prefer generating that file via `yarn ensure-project-identity` (from .env).
+ */
 export function loadProjectIdentity(configDir?: string): ProjectIdentity {
   if (cached) return cached;
   const dir = configDir ?? process.env.CONFIG_DIR ?? join(process.cwd(), 'config');
   const path = join(dir, 'project.identity.json');
   if (!existsSync(path)) {
-    throw new Error('Missing ' + path + ' — run yarn new-project or restore the identity file.');
+    throw new Error(
+      'Missing ' + path + ' — set PROJECT_NAME in .env and run yarn ensure-project-identity',
+    );
   }
   const raw = JSON.parse(readFileSync(path, 'utf8')) as Partial<ProjectIdentity>;
-  const id = String(raw.id ?? '').trim().toLowerCase();
   const slug = String(raw.slug ?? '').trim();
   const name = String(raw.name ?? '').trim();
-  if (!UUID_RE.test(id)) throw new Error('project.identity.json id must be a UUID');
-  if (!slug || !name) throw new Error('project.identity.json needs slug and name');
-  cached = { id, slug, name };
+  if (!slug || !name) throw new Error('project.identity.json needs name and slug');
+  cached = { slug, name };
   return cached;
 }
 
-export function resolveProjectUuid(): string {
-  return loadProjectIdentity().id;
+export function projectVapiBasePath(): string {
+  return '/vapi';
 }
 
-export function projectVapiBasePath(projectUuid = resolveProjectUuid()): string {
-  return '/' + projectUuid + '/vapi';
-}
-
-export function projectWebhookUrl(publicBaseUrl: string, projectUuid = resolveProjectUuid()): string {
-  return publicBaseUrl.replace(/\/$/, '') + projectVapiBasePath(projectUuid) + '/webhook';
+export function projectWebhookUrl(publicBaseUrl: string): string {
+  return publicBaseUrl.replace(/\/$/, '') + projectVapiBasePath() + '/webhook';
 }
 
 export function projectChatCompletionsUrl(
   publicBaseUrl: string,
-  projectUuid = resolveProjectUuid(),
   moduleId?: string | null,
 ): string {
-  const root = publicBaseUrl.replace(/\/$/, '') + projectVapiBasePath(projectUuid);
+  const root = publicBaseUrl.replace(/\/$/, '') + projectVapiBasePath();
   if (moduleId?.trim()) return root + '/' + moduleId.trim() + '/chat/completions';
   return root + '/chat/completions';
 }

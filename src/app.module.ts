@@ -12,7 +12,6 @@ import {
 } from '@guidify-ai/vapi-studio';
 import { HealthController } from './health/health.controller';
 import { ProjectSeedService } from './project/project-seed.service';
-import { ProjectUuidGuard } from './project/project-uuid.guard';
 import { VapiController } from './vapi/vapi.controller';
 import { AppConversationEntry } from './conversation/entry';
 import { GreetNode } from './conversation/nodes/greet.node';
@@ -41,7 +40,7 @@ import { GoodbyeNode } from './conversation/nodes/goodbye.node';
     }),
   ],
   controllers: [HealthController, VapiController],
-  providers: [ProjectSeedService, ProjectUuidGuard],
+  providers: [ProjectSeedService],
 })
 export class AppModule implements OnModuleInit {
   private readonly logger = new Logger(AppModule.name);

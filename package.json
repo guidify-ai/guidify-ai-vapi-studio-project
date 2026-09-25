@@ -2,16 +2,15 @@
   "name": "vapi-studio-project",
   "version": "0.1.0",
   "private": true,
-  "description": "Laravel-style starter NestJS app for @guidify-ai/vapi-studio",
+  "description": "Starter NestJS app for @guidify-ai/vapi-studio",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "bash scripts/start.sh",
     "stop": "docker compose down",
     "clean": "rm -rf dist",
-    "postinstall": "node scripts/ensure-project-uuid.cjs",
-    "ensure-project-uuid": "node scripts/ensure-project-uuid.cjs",
-    "mint-identity": "node scripts/mint-identity.cjs",
+    "postinstall": "node scripts/ensure-project-identity.cjs",
+    "ensure-project-identity": "node scripts/ensure-project-identity.cjs",
     "test": "echo \"Add tests under test/ — see sample landing LLM for patterns\""
   },
   "dependencies": {

@@ -1,8 +1,6 @@
 # Vapi Studio Project
 
-**Public starter NestJS app** for [**@guidify-ai/vapi-studio**](https://www.npmjs.com/package/@guidify-ai/vapi-studio) — the same role [laravel/laravel](https://github.com/laravel/laravel) plays for Laravel.
-
-This repository is **not** the framework. Clone it (or copy it), mint your project UUID, then build your conversation graph. Agents get Cursor/Claude rules and `AGENTS.md` out of the box.
+**Public starter NestJS app** for [**@guidify-ai/vapi-studio**](https://www.npmjs.com/package/@guidify-ai/vapi-studio). Clone it, set `PROJECT_NAME`, then build your conversation graph. Agents get Cursor/Claude rules and `AGENTS.md` out of the box.
 
 | | |
 | --- | --- |
@@ -13,37 +11,34 @@ This repository is **not** the framework. Clone it (or copy it), mint your proje
 ## Create a new bot
 
 ```bash
-# A — clone this starter (recommended)
 git clone git@github.com:guidify-ai/vapi-studio-project.git my-bot
 cd my-bot
+cp .env.example .env
+# Edit PROJECT_NAME=… (PROJECT_SLUG optional — defaults from the name)
 yarn install
-# postinstall → ensure-project-uuid mints a unique PROJECT_UUID into
-# config/project.identity.json + .env (template uses a placeholder only)
-# Optional rename:
-# yarn mint-identity --name "My Bot" --slug my-bot
-yarn start   # Docker Postgres + app + ngrok → prints Vapi URLs
-
-# B — from a framework clone
-cd /path/to/vapi-studio
-yarn new-project --name "My Bot" --slug my-bot -y
+# postinstall → ensure-project-identity writes config/project.identity.json
+# from PROJECT_NAME / PROJECT_SLUG (no UUID minted here)
+yarn start   # Docker Postgres + app + ngrok
 ```
+
+Each fork is its own deploy (own host / port / ngrok URL). Vapi routes are host-scoped — no project UUID in the path.
 
 After `yarn install`, postinstall also refreshes `.cursor/rules/`, `.claude/rules/`, `AGENTS.md`, and `CLAUDE.md` from the package (when `@guidify-ai/vapi-studio` is installed).
 
 ## What you get
 
 ```text
-guidify-ai-vapi-studio-project/
+vapi-studio-project/
 ├── .cursor/rules/          # best-practices + UI↔API identity (AI)
 ├── .claude/rules/          # same doctrine for Claude Code
 ├── AGENTS.md / CLAUDE.md   # stamped pointers into node_modules handbook
 ├── config/
-│   ├── project.identity.example.json  # template placeholder (committed)
-│   ├── project.identity.json          # minted locally (gitignored)
+│   ├── project.identity.example.json  # name + slug template (committed)
+│   ├── project.identity.json          # synced from .env (gitignored)
 │   └── flow.yaml                      # greet → goodbye (+ portal goodbye)
 ├── src/
 │   ├── main.ts / app.module.ts
-│   ├── project/                # identity load, seed, UUID guard
+│   ├── project/                # identity load + seed
 │   ├── conversation/           # entry + agent steps (extend here)
 │   ├── vapi/                   # webhook + Custom LLM SSE (wire / extend)
 │   ├── brain/                  # adapter switch (mock by default)
@@ -60,10 +55,8 @@ guidify-ai-vapi-studio-project/
 
 | Setting | URL |
 | --- | --- |
-| Webhook | `{PUBLIC_BASE_URL}/{PROJECT_UUID}/vapi/webhook` |
-| Custom LLM | `{PUBLIC_BASE_URL}/{PROJECT_UUID}/vapi/chat/completions` |
-
-`PROJECT_UUID` comes from `config/project.identity.json` (mirrored into `.env` by `yarn start`).
+| Webhook | `{PUBLIC_BASE_URL}/vapi/webhook` |
+| Custom LLM | `{PUBLIC_BASE_URL}/vapi/chat/completions` |
 
 ## Local framework spoof (next package versions)
 

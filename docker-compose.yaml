@@ -26,14 +26,15 @@ services:
       additional_contexts:
         vapi-studio: ${VAPI_STUDIO_CONTEXT:-../vapi-studio}
     ports:
-      - "9999:9999"
+      - "${PORT:-9999}:${PORT:-9999}"
     env_file:
       - .env
     environment:
       DATABASE_URL: postgres://studio:studio@postgres:5432/studio
-      PORT: 9999
-      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:9999}
-      PROJECT_UUID: ${PROJECT_UUID}
+      PORT: ${PORT:-9999}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:${PORT:-9999}}
+      PROJECT_NAME: ${PROJECT_NAME:-Vapi Studio Project}
+      PROJECT_SLUG: ${PROJECT_SLUG:-vapi-studio-project}
       LOG_DIR: ${LOG_DIR:-/app/logs}
       FORCE_COLOR: "1"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}

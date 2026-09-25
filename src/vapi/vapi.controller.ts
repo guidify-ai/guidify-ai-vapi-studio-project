@@ -6,7 +6,6 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import {
@@ -27,19 +26,14 @@ import {
   type SupervisedConversation,
   type VapiTurnContext,
 } from '@guidify-ai/vapi-studio';
-import {
-  ProjectUuidGuard,
-  projectIdFromRequest,
-} from '../project/project-uuid.guard';
-import { projectVapiBasePath, loadProjectIdentity } from '../project/project.config';
+import { loadProjectIdentity, LOCAL_PROJECT_ID, projectVapiBasePath } from '../project/project.config';
 import { brainConfig } from '../brain/brain.config';
 
 /**
- * Vapi ingress — webhook + Custom LLM SSE (single-assistant starter).
- * Grow this file / add strategies as needed — see sample landing LLM for a full PoC.
+ * Vapi ingress — webhook + Custom LLM SSE.
+ * One fork = one deploy = host-scoped `/vapi/...` (no project UUID in the path).
  */
-@Controller(':projectUuid/vapi')
-@UseGuards(ProjectUuidGuard)
+@Controller('vapi')
 export class VapiController {
   constructor(
     private readonly bootstrap: ConversationBootstrapService,
@@ -50,14 +44,18 @@ export class VapiController {
     private readonly turnQueues: CallTurnQueueRegistry,
   ) {}
 
+  private get projectId(): string {
+    return LOCAL_PROJECT_ID;
+  }
+
   @Post('webhook')
   @HttpCode(200)
   async webhook(@Req() req: Request, @Body() body: Record<string, unknown>) {
-    const projectId = projectIdFromRequest(req);
+    const projectId = this.projectId;
     const message = (body.message ?? body) as Record<string, unknown>;
     const call = message.call as { id?: string } | undefined;
     const callId = call?.id ?? extractVapiCallId(body);
-    const path = projectVapiBasePath(projectId) + '/webhook';
+    const path = projectVapiBasePath() + '/webhook';
     await this.ingress.record({
       projectId,
       kind: 'webhook',
@@ -92,7 +90,7 @@ export class VapiController {
     @Headers() headers: Record<string, string | string[] | undefined>,
     @Res() res: Response,
   ): Promise<void> {
-    const projectId = projectIdFromRequest(req);
+    const projectId = this.projectId;
     const callId =
       extractVapiCallId(body) ??
       (typeof headers['x-call-id'] === 'string' ? headers['x-call-id'] : null) ??
@@ -104,7 +102,7 @@ export class VapiController {
       rememberCallerPhone(callId, callerPhoneNumber);
     }
 
-    const ingressPath = `${projectVapiBasePath(projectId)}/chat/completions`;
+    const ingressPath = `${projectVapiBasePath()}/chat/completions`;
     const ingressRow = await this.ingress.record({
       projectId,
       kind: 'custom-llm',

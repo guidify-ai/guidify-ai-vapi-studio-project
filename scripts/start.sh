@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# yarn start — Docker + ngrok; seeds project UUID from config/project.identity.json
+# yarn start — Docker + ngrok; identity (name/slug) from .env → project.identity.json
 set -euo pipefail
 
 ROOT="$(CDPATH="" cd "$(dirname "$0")/.." && pwd)"
@@ -7,11 +7,29 @@ cd "$ROOT"
 
 PORT="${PORT:-9999}"
 NGROK_API="${NGROK_API:-http://127.0.0.1:4040}"
-IDENTITY_FILE="${ROOT}/config/project.identity.json"
 
+if [[ ! -f .env ]]; then
+  echo ">> No .env — copying .env.example"
+  cp .env.example .env
+fi
+
+# Prefer PORT from .env when present
+PORT="$(python3 -c '
+from pathlib import Path
+d = {}
+for line in Path(".env").read_text().splitlines():
+    s = line.strip()
+    if not s or s.startswith("#") or "=" not in s: continue
+    k, _, v = s.partition("=")
+    d[k.strip()] = v.strip()
+print(d.get("PORT") or "9999")
+')"
+
+node "$ROOT/scripts/ensure-project-identity.cjs"
+
+IDENTITY_FILE="${ROOT}/config/project.identity.json"
 if [[ ! -f "$IDENTITY_FILE" ]]; then
-  echo "Missing ${IDENTITY_FILE}" >&2
-  echo "Run: yarn ensure-project-uuid   (or yarn mint-identity)" >&2
+  echo "Missing ${IDENTITY_FILE} — set PROJECT_NAME in .env" >&2
   exit 1
 fi
 
@@ -19,18 +37,16 @@ read_identity() {
   python3 -c '
 import json, pathlib, sys
 d = json.loads(pathlib.Path("config/project.identity.json").read_text())
-for key in ("id", "slug", "name"):
+for key in ("slug", "name"):
     if not str(d.get(key, "")).strip():
         sys.exit(f"project.identity.json missing {key}")
-print(str(d["id"]).strip().lower())
 print(str(d["slug"]).strip())
 print(str(d["name"]).strip())
 '
 }
 IDENTITY_LINES="$(read_identity)"
-PROJECT_UUID="$(printf '%s\n' "$IDENTITY_LINES" | sed -n '1p')"
-PROJECT_SLUG="$(printf '%s\n' "$IDENTITY_LINES" | sed -n '2p')"
-PROJECT_NAME="$(printf '%s\n' "$IDENTITY_LINES" | sed -n '3p')"
+PROJECT_SLUG="$(printf '%s\n' "$IDENTITY_LINES" | sed -n '1p')"
+PROJECT_NAME="$(printf '%s\n' "$IDENTITY_LINES" | sed -n '2p')"
 
 if ! command -v ngrok >/dev/null 2>&1; then
   echo "ngrok is required on PATH for yarn start." >&2
@@ -39,41 +55,18 @@ fi
 
 bash "$ROOT/scripts/ensure-docker.sh"
 
-if [[ ! -f .env ]]; then
-  echo ">> No .env — copying .env.example"
-  cp .env.example .env
-fi
-
 if [[ ! -f docker-compose.yaml && ! -f docker-compose.yml ]]; then
   echo "Missing docker-compose.yaml" >&2
   exit 1
 fi
 
-PROJECT_UUID="$PROJECT_UUID" python3 -c '
-import os
-from pathlib import Path
-uuid = os.environ["PROJECT_UUID"]
-path = Path(".env")
-lines = path.read_text().splitlines() if path.exists() else []
-out, seen = [], False
-for line in lines:
-    if line.startswith("PROJECT_UUID="):
-        out.append(f"PROJECT_UUID={uuid}"); seen = True
-    else:
-        out.append(line)
-if not seen:
-    out.append(f"PROJECT_UUID={uuid}")
-path.write_text("\n".join(out) + "\n")
-'
-
-echo ">> Project ${PROJECT_NAME} (${PROJECT_SLUG}) id=${PROJECT_UUID}"
-echo ">> App boot upserts this UUID into the projects table (create or exist)"
+echo ">> Project ${PROJECT_NAME} (${PROJECT_SLUG}) on :${PORT}"
 docker compose up -d --build
 
 echo ">> Waiting for health on http://localhost:${PORT}/health"
 for _ in $(seq 1 90); do
   if curl -sf "http://localhost:${PORT}/health" >/dev/null; then
-    echo ">> App is healthy (project row seeded)"
+    echo ">> App is healthy"
     break
   fi
   sleep 1
@@ -148,9 +141,8 @@ else
   PUBLIC_BASE_URL="$public_url" docker compose up -d app
   echo
   echo "Project:                ${PROJECT_NAME} (${PROJECT_SLUG})"
-  echo "Project UUID:           ${PROJECT_UUID}"
-  echo "Webhook endpoint:       ${public_url}/${PROJECT_UUID}/vapi/webhook"
-  echo "Conversation endpoint:  ${public_url}/${PROJECT_UUID}/vapi/chat/completions"
+  echo "Webhook endpoint:       ${public_url}/vapi/webhook"
+  echo "Conversation endpoint:  ${public_url}/vapi/chat/completions"
   echo
 fi
 

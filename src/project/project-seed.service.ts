@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ProjectRepository } from '@guidify-ai/vapi-studio';
-import { loadProjectIdentity } from './project.config';
+import { loadProjectIdentity, LOCAL_PROJECT_ID } from './project.config';
 
 @Injectable()
 export class ProjectSeedService implements OnModuleInit {
@@ -11,12 +11,12 @@ export class ProjectSeedService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     const identity = loadProjectIdentity();
     const row = await this.projects.upsert({
-      id: identity.id,
+      id: LOCAL_PROJECT_ID,
       slug: identity.slug,
       name: identity.name,
     });
     this.logger.log(
-      'Project seeded id=' + row.id + ' slug=' + row.slug + ' (Vapi: /' + row.id + '/vapi/...)',
+      `Project seeded slug=${row.slug} name=${row.name} (Vapi: /vapi/... on this host)`,
     );
   }
 }

@@ -1,6 +1,6 @@
 version: 1
 flow:
-  id: guidify-ai-vapi-studio-project
+  id: vapi-studio-project
   start: greet
 nodes:
   greet:
