@@ -12,7 +12,7 @@
 
 | Requirement | Notes |
 | --- | --- |
-| **Vapi access** | Client needs a Vapi org. Set `VAPI_API_KEY` (required — empty in `.env.example` means you must fill it). |
+| **Vapi access** | Client needs a Vapi org. Set `VAPI_API_KEY` (required — empty in `.env.example` means you must fill it). **Vapi is a paid service** — expect usage / plan charges there as well as on Twilio. |
 | **Twilio account** | **Twilio only for now** (Vapi supports more carriers; we will too later). |
 | **Trust Hub** | Twilio Trust Hub / voice geo must allow outbound to **+1** destinations. Unverified / trial restrictions often fail with `Account not allowed to call +1…`. |
 | **Balance** | Keep money on the Twilio account. Recommend **~$30** with auto-recharge to **$30** when balance hits **~$10** (adjust to taste). |
