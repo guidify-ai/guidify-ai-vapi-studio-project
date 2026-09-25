@@ -1,6 +1,6 @@
-# Framework stub — promoted to docker-compose.yaml on first yarn start.
-# The promoted file is gitignored: edit it for extra local services if needed.
-# See docs/guides/extending-events.md
+# Local stack: Postgres + Nest app.
+# Optional: VAPI_STUDIO_CONTEXT=../vapi-studio for a sibling framework spoof.
+# Public builds can install @guidify-ai/vapi-studio@0.1.0 from npm in the Dockerfile.
 
 services:
   postgres:
@@ -24,8 +24,6 @@ services:
       context: .
       dockerfile: Dockerfile
       additional_contexts:
-        # Local spoof: point at a sibling framework checkout. Public builds can
-        # instead use npm @guidify-ai/vapi-studio@0.1.0 (see Dockerfile.npm).
         vapi-studio: ${VAPI_STUDIO_CONTEXT:-../vapi-studio}
     ports:
       - "9999:9999"
@@ -35,7 +33,7 @@ services:
       DATABASE_URL: postgres://studio:studio@postgres:5432/studio
       PORT: 9999
       PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:9999}
-      PROJECT_UUID: ${PROJECT_UUID:-28cd87c2-f4f7-4588-b8fc-cbc91a9ff309}
+      PROJECT_UUID: ${PROJECT_UUID}
       LOG_DIR: ${LOG_DIR:-/app/logs}
       FORCE_COLOR: "1"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}

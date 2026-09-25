@@ -45,16 +45,8 @@ if [[ ! -f .env ]]; then
 fi
 
 if [[ ! -f docker-compose.yaml && ! -f docker-compose.yml ]]; then
-  if [[ -f docker-compose.stub.yaml ]]; then
-    echo ">> Promoting docker-compose.stub.yaml → docker-compose.yaml (local; gitignored)"
-    cp docker-compose.stub.yaml docker-compose.yaml
-  elif [[ -f docker-compose.stub.yml ]]; then
-    echo ">> Promoting docker-compose.stub.yml → docker-compose.yaml (local; gitignored)"
-    cp docker-compose.stub.yml docker-compose.yaml
-  else
-    echo "Missing docker-compose.stub.yaml" >&2
-    exit 1
-  fi
+  echo "Missing docker-compose.yaml" >&2
+  exit 1
 fi
 
 PROJECT_UUID="$PROJECT_UUID" python3 -c '

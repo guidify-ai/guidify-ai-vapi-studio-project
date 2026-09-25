@@ -7,9 +7,3 @@ logs/
 
 # Local project identity (minted by postinstall / ensure-project-uuid)
 config/project.identity.json
-
-# Local compose (promoted from docker-compose.stub.yaml on first yarn start)
-docker-compose.yaml
-docker-compose.yml
-!docker-compose.stub.yaml
-!docker-compose.stub.yml

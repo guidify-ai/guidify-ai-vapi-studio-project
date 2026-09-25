@@ -50,7 +50,7 @@ guidify-ai-vapi-studio-project/
 │   ├── shadows/                # optional private overlays (gitignored pattern)
 │   └── health/
 ├── scripts/start.sh            # Docker + ngrok
-├── docker-compose.stub.yaml    # Postgres + app (promoted on first start)
+├── docker-compose.yaml         # Postgres + app
 └── Dockerfile
 ```
 
