@@ -1,5 +1,5 @@
 {
-  "name": "guidify-ai-vapi-studio-project",
+  "name": "vapi-studio-project",
   "version": "0.1.0",
   "private": true,
   "description": "Laravel-style starter NestJS app for @guidify-ai/vapi-studio",
@@ -33,6 +33,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/guidify-ai/guidify-ai-vapi-studio-project.git"
+    "url": "git+https://github.com/guidify-ai/vapi-studio-project.git"
   }
 }

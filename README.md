@@ -14,7 +14,7 @@ This repository is **not** the framework. Clone it (or copy it), mint your proje
 
 ```bash
 # A — clone this starter (recommended)
-git clone git@github.com:guidify-ai/guidify-ai-vapi-studio-project.git my-bot
+git clone git@github.com:guidify-ai/vapi-studio-project.git my-bot
 cd my-bot
 yarn install
 # postinstall → ensure-project-uuid mints a unique PROJECT_UUID into
