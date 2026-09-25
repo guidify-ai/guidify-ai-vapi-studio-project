@@ -9,6 +9,8 @@
     "start": "bash scripts/start.sh",
     "stop": "docker compose down",
     "clean": "rm -rf dist",
+    "postinstall": "node scripts/ensure-project-uuid.cjs",
+    "ensure-project-uuid": "node scripts/ensure-project-uuid.cjs",
     "mint-identity": "node scripts/mint-identity.cjs",
     "test": "echo \"Add tests under test/ — see sample landing LLM for patterns\""
   },

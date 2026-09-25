@@ -16,9 +16,11 @@ This repository is **not** the framework. Clone it (or copy it), mint your proje
 # A — clone this starter (recommended)
 git clone git@github.com:guidify-ai/guidify-ai-vapi-studio-project.git my-bot
 cd my-bot
-yarn mint-identity --name "My Bot" --slug my-bot
 yarn install
-cp .env.example .env
+# postinstall → ensure-project-uuid mints a unique PROJECT_UUID into
+# config/project.identity.json + .env (template uses a placeholder only)
+# Optional rename:
+# yarn mint-identity --name "My Bot" --slug my-bot
 yarn start   # Docker Postgres + app + ngrok → prints Vapi URLs
 
 # B — from a framework clone
@@ -26,7 +28,7 @@ cd /path/to/vapi-studio
 yarn new-project --name "My Bot" --slug my-bot -y
 ```
 
-After `yarn install`, postinstall refreshes `.cursor/rules/`, `.claude/rules/`, `AGENTS.md`, and `CLAUDE.md` from the package.
+After `yarn install`, postinstall also refreshes `.cursor/rules/`, `.claude/rules/`, `AGENTS.md`, and `CLAUDE.md` from the package (when `@guidify-ai/vapi-studio` is installed).
 
 ## What you get
 
@@ -36,8 +38,9 @@ guidify-ai-vapi-studio-project/
 ├── .claude/rules/          # same doctrine for Claude Code
 ├── AGENTS.md / CLAUDE.md   # stamped pointers into node_modules handbook
 ├── config/
-│   ├── project.identity.json   # durable UUID — do not rotate after wiring Vapi
-│   └── flow.yaml               # greet → goodbye (+ portal goodbye)
+│   ├── project.identity.example.json  # template placeholder (committed)
+│   ├── project.identity.json          # minted locally (gitignored)
+│   └── flow.yaml                      # greet → goodbye (+ portal goodbye)
 ├── src/
 │   ├── main.ts / app.module.ts
 │   ├── project/                # identity load, seed, UUID guard

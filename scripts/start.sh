@@ -11,7 +11,7 @@ IDENTITY_FILE="${ROOT}/config/project.identity.json"
 
 if [[ ! -f "$IDENTITY_FILE" ]]; then
   echo "Missing ${IDENTITY_FILE}" >&2
-  echo "Re-run yarn new-project or restore project.identity.json" >&2
+  echo "Run: yarn ensure-project-uuid   (or yarn mint-identity)" >&2
   exit 1
 fi
 

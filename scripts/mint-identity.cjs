@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 /**
- * Regenerate config/project.identity.json (and .env PROJECT_UUID) for a fresh clone.
+ * Force a new project identity (name/slug/uuid).
  * Usage:
  *   yarn mint-identity --name "My Bot" --slug my-bot
- *   yarn mint-identity -y   # keep current name/slug, new UUID only
+ *   yarn mint-identity            # new UUID; keep current name/slug
+ *
+ * For first-clone auto-mint (placeholder only), use postinstall /
+ * yarn ensure-project-uuid instead.
  */
 'use strict';
 
@@ -14,7 +17,6 @@ const crypto = require('crypto');
 const root = path.resolve(__dirname, '..');
 const identityPath = path.join(root, 'config', 'project.identity.json');
 const envPath = path.join(root, '.env');
-const envExamplePath = path.join(root, '.env.example');
 const pkgPath = path.join(root, 'package.json');
 
 function flag(name) {
@@ -60,7 +62,6 @@ const identity = { id: uuid, slug, name };
 fs.mkdirSync(path.dirname(identityPath), { recursive: true });
 fs.writeFileSync(identityPath, `${JSON.stringify(identity, null, 2)}\n`);
 
-upsertEnv(envExamplePath, 'PROJECT_UUID', uuid);
 upsertEnv(envPath, 'PROJECT_UUID', uuid);
 
 if (fs.existsSync(pkgPath)) {
@@ -75,3 +76,4 @@ console.log(`  name: ${name}`);
 console.log(`  slug: ${slug}`);
 console.log(`  uuid: ${uuid}`);
 console.log('Do not rotate this UUID after wiring Vapi assistants.');
+console.log('(.env.example stays on the template placeholder — only .env is updated.)');
