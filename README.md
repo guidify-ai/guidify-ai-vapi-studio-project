@@ -8,6 +8,18 @@
 | Showcase | [vapi-studio-landing-page-sample-model](https://github.com/guidify-ai/vapi-studio-landing-page-sample-model) |
 | Website | [vapi-studio.guidify.ca](https://vapi-studio.guidify.ca) |
 
+## Prerequisites (live voice / outbound)
+
+| Requirement | Notes |
+| --- | --- |
+| **Vapi access** | Client needs a Vapi org. Set `VAPI_API_KEY` (required — empty in `.env.example` means you must fill it). |
+| **Twilio account** | **Twilio only for now** (Vapi supports more carriers; we will too later). |
+| **Trust Hub** | Twilio Trust Hub / voice geo must allow outbound to **+1** destinations. Unverified / trial restrictions often fail with `Account not allowed to call +1…`. |
+| **Balance** | Keep money on the Twilio account. Recommend **~$30** with auto-recharge to **$30** when balance hits **~$10** (adjust to taste). |
+| **Matching number** | `VAPI_PHONE_NUMBER_ID` is a number **imported in Vapi from that same Twilio account**. Put Twilio API creds in `.env` (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`). |
+
+Copy `.env.example` → `.env` and fill Vapi + Twilio before placing live calls. Local graph / chat can run with empty telephony keys.
+
 ## Create a new bot
 
 ```bash
@@ -15,6 +27,7 @@ git clone git@github.com:guidify-ai/vapi-studio-project.git my-bot
 cd my-bot
 cp .env.example .env
 # Edit PROJECT_NAME=… (PROJECT_SLUG optional — defaults from the name)
+# For live voice: VAPI_API_KEY, VAPI_PHONE_NUMBER_ID, TWILIO_* (see Prerequisites)
 yarn install
 # postinstall → ensure-project-identity writes config/project.identity.json
 # from PROJECT_NAME / PROJECT_SLUG (no UUID minted here)
@@ -57,6 +70,8 @@ vapi-studio-project/
 | --- | --- |
 | Webhook | `{PUBLIC_BASE_URL}/vapi/webhook` |
 | Custom LLM | `{PUBLIC_BASE_URL}/vapi/chat/completions` |
+
+Outbound PSTN: your app asks **Vapi** to dial (`VAPI_API_KEY` + `VAPI_PHONE_NUMBER_ID` + assistant). Vapi uses the **Twilio** account that owns the imported FROM number — that account must match the `TWILIO_*` creds you keep in `.env`.
 
 ## Local framework spoof (next package versions)
 
